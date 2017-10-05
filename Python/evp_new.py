@@ -27,6 +27,7 @@ g  = .02 #reduced gravity?
 Co = 1.4 #speed m/s
 beta = 2.28e-11 # beta plane const. 1/m*s
 kx = 2*np.pi/Lx
+#y_basis = de.Chebyshev('y', 256, interval = (-Ly,Ly), dealias = 3/2)
 
 def growth_rate(Lx, Ly, zeta, D, a, b, g, Co, beta, kx, i):
 
@@ -75,27 +76,7 @@ def growth_rate(Lx, Ly, zeta, D, a, b, g, Co, beta, kx, i):
     pencils = EVP.pencils
     EVP.solve(EVP.pencils[0])
     logger.info('Solver built')
-'''need to remove ext lines from the function
-    # largest finite imaginary part
-    ev = EVP.eigenvalues
-    ev = ev[np.isfinite(ev)]
-    gamma = ev.real
-    omega = ev.imag
-
-    yy = y_basis.grid()
-    save_info_test = ('Eigenmodes' +str(i))
-    plt.figure()
-    #for i in range(5):
-    EVP.set_state(i)
-    plt.plot(yy, EVP.state['u']['g'].real, label = "mode {}".format(i))
-             
-    plt.xlabel("y")
-    plt.ylabel("u")
-    plt.legend(loc="upper left").draw_frame(False)
-    plt.title("Eigenmodes")
-    plt.savefig(save_info_test +'.png')
-    plt.clf()
- '''   
+ 
     return EVP
 
 #end of growth_rate definition
@@ -105,20 +86,70 @@ kx_global = np.linspace(1, 6, 6)
 
 #Running function over wavenumbers
 freq = np.array([growth_rate(Lx, Ly, zeta, D, a, b, g, Co, beta, kx, i) for i in kx_global])
+'''
+# largest finite imaginary part
+ev = freq[0].eigenvalues
+ev = ev[np.isfinite(ev)]
+gamma = ev.real
+omega = ev.imag
+'''
+for k in range(len(freq)):
+    ev = freq[k].eigenvalues
+    ev = ev[np.isfinite(ev)]
+    gamma = ev.real
+    omega = ev.imag
+    #logger.info(gamma[0])
+    for j in range(0,len(omega)):
+        #logger.info(ev[j])
+        plt.scatter(kx_global[k],omega[j])
+        plt.ylim(-2e-3,2e-3)
+        plt.xlabel("x")
+        plt.ylabel("evalues")
+        plt.title("Eigenvalues")
+plt.savefig('evalues.png')
 
-'''testing set_state
-yy = y_basis.grid()
+
+
+evp = growth_rate(Lx, Ly, zeta, D, a, b, g, Co, beta, kx, 1)
+
+# Filter infinite/nan eigenmodes
+finite = np.isfinite(evp.eigenvalues)
+evp.eigenvalues = evp.eigenvalues[finite]
+evp.eigenvectors = evp.eigenvectors[:, finite]
+
+# Sort eigenmodes by eigenvalue
+order = np.argsort(evp.eigenvalues)
+evp.eigenvalues = evp.eigenvalues[order]
+evp.eigenvectors = evp.eigenvectors[:, order]
+
+#testing set_state
+yy = evp.domain.grid(0)
 plt.figure()
-for i in range(5):
-    EVP.set_state(i)
-    plt.plot(yy, EVP.state['u']['g'].real, label = "mode {}".format(i))
+for i in range(2):
+    evp.set_state(i)
+    plt.plot(yy, evp.state['u']['g'].real, label = "mode {}".format(i))
              
 plt.xlabel("y")
 plt.ylabel("u")
 plt.legend(loc="upper left").draw_frame(False)
 plt.title("Eigenmodes")
 plt.savefig('emodes.png')   
-'''  
+
+plt.clf()
+'''
+plt.plot(yy,evp.eigenvalues.real)
+plt.xlabel("x")
+plt.ylabel("evalues")
+plt.title("Eigenvalues")
+plt.savefig('evalues.png')
+'''
+#code below needs to be fixed for new growth_rate function
+'''
+# largest finite imaginary part
+ev = evp.eigenvalues
+ev = ev[np.isfinite(ev)]
+gamma = ev.real
+omega = ev.imag
 
 #separating out real and imaginary parts of frequency
 omega = []
@@ -227,4 +258,4 @@ plt.ylabel('Frequency')
 plt.savefig('max_imag.png')
 
 
-
+'''
