@@ -1,3 +1,4 @@
+
 import sys
 import os
 import numpy as np
@@ -13,6 +14,7 @@ from dedalus.extras import flow_tools
 
 import logging
 logger = logging.getLogger(__name__)
+ax = plt.gca()
 #CW = MPI.COMM_WORLD
 
 Lx = 10000000
@@ -82,7 +84,7 @@ def growth_rate(Lx, Ly, zeta, D, a, b, g, Co, beta, kx, i):
 #end of growth_rate definition
 
 #create wave numbers for function to run over
-kx_global = np.linspace(1, 6, 6)
+kx_global = np.linspace(1, 1, 1)
 
 #Running function over wavenumbers
 freq = np.array([growth_rate(Lx, Ly, zeta, D, a, b, g, Co, beta, kx, i) for i in kx_global])
@@ -93,20 +95,48 @@ ev = ev[np.isfinite(ev)]
 gamma = ev.real
 omega = ev.imag
 '''
-for k in range(len(freq)):
-    ev = freq[k].eigenvalues
-    ev = ev[np.isfinite(ev)]
-    gamma = ev.real
-    omega = ev.imag
-    #logger.info(gamma[0])
-    for j in range(0,len(omega)):
+
+#plotting eigenvalues unsorted
+def plot_eval(freq):
+    for k in range(len(freq)):
+        ev = freq[k].eigenvalues
+        ev = ev[np.isfinite(ev)]
+        gamma = ev.real
+        omega = ev.imag
+        #for j in range(0,len(omega)):
         #logger.info(ev[j])
-        plt.scatter(kx_global[k],omega[j])
+        plt.plot(omega)
         plt.ylim(-2e-3,2e-3)
-        plt.xlabel("x")
+        ax.yaxis.labelpad = -5
+        plt.xlabel("kx")
         plt.ylabel("evalues")
         plt.title("Eigenvalues")
-plt.savefig('evalues.png')
+    plt.savefig('evalues.png')
+    plt.clf()
+
+plot_eval(freq)
+
+
+#plotting eigenvalues sorted
+def plot_eval_sort(freq):
+    for k in range(len(freq)):
+        finite = np.isfinite(freq[k].eigenvalues)
+        freq[k].eigenvalues = freq[k].eigenvalues[finite]
+        freq[k].eigenvectors = freq[k].eigenvectors[:,finite]
+        order = np.argsort(freq[k].eigenvalues)
+        freq[k].eigenvalues = freq[k].eigenvalues[order]
+        freq[k].eigenvectors = freq[k].eigenvectors[:, order]
+        #logger.info(freq[k].eigenvalues)
+        plt.plot(freq[k].eigenvalues)
+        #plt.ylim(-2e-3,2e-3)
+        ax.yaxis.labelpad = -5
+        plt.xlabel("kx")
+        plt.ylabel("evalues")
+        plt.title("Eigenvalues")
+    plt.savefig('evalues_sort.png')
+    plt.clf()
+
+plot_eval_sort(freq)
 
 
 
@@ -136,126 +166,7 @@ plt.title("Eigenmodes")
 plt.savefig('emodes.png')   
 
 plt.clf()
-'''
-plt.plot(yy,evp.eigenvalues.real)
-plt.xlabel("x")
-plt.ylabel("evalues")
-plt.title("Eigenvalues")
-plt.savefig('evalues.png')
-'''
-#code below needs to be fixed for new growth_rate function
-'''
-# largest finite imaginary part
-ev = evp.eigenvalues
-ev = ev[np.isfinite(ev)]
-gamma = ev.real
-omega = ev.imag
-
-#separating out real and imaginary parts of frequency
-omega = []
-gamma = []
-for k in range(len(freq)):
-    omega.append(freq[k][0])
-    gamma.append(freq[k][1])
-
-max_imag = []
-for l in range(len(omega)):
-    max_imag.append(np.max(omega[l]))
-    
-ax = plt.gca()
-
-#plots only positive y values
-for j in range(0,len(kx_global)):      
-    for k in range(0,len(omega[0])):
-        if omega[j][k] >= 0:
-            plt.scatter(kx_global[j], omega[j][k])
-            plt.ylim(-2e-3,2e-3)
-    plt.title('Positive')
-    ax.yaxis.labelpad = -5
-    plt.xlabel('Wave Number (kx)')
-    plt.ylabel('Frequency',labelpad = -5)
-plt.savefig('positive.png')
-plt.clf()
-
-#plots every nth y value
-def positive_freq(interval):
-    save_info = 'positive_' + str(interval)
-    for j in range(0,len(kx_global)):
-        omega_1 = (omega[j])
-        positive_omega = []
-        for k in range(0,len(omega_1)):
-            if omega_1[k] >= 0:
-                positive_omega.append(omega_1[k])
-                positive_x = positive_omega[::interval]
-                for l in range(0,len(positive_x)):
-                    plt.scatter(kx_global[j], positive_x[l])
-                    plt.ylim(-2e-3,2e-3)
-    ax.yaxis.labelpad = -5
-    plt.title('Every '+str(interval)+' positive')
-    plt.xlabel('Wave Number (kx)')
-    plt.ylabel('Frequency',labelpad=-5)
-    plt.savefig(save_info)
-    plt.clf()
-    
-#creating the plots for every nth y value (only positive)
-positive_freq(5)
-positive_freq(10)
-positive_freq(20)
-positive_freq(100)
-
-#function that plots every nth value whether it is positive or negative
-def every_x(interval):
-    save_info_1 = 'Every_' + str(interval)
-    for j in range(0,len(kx_global)):
-    
-        every_freq = (omega[j])
-        every_int = every_freq[::interval]
-        #print(every_10)
-        for k in range(0,len(every_int)):
-            plt.scatter(kx_global[j], every_int[k])
-            plt.ylim(-2e-3,2e-3)
-    ax.yaxis.labelpad = -5
-    plt.title('Every '+str(interval))
-    plt.xlabel('Wave Number (kx)')
-    plt.ylabel('Frequency',labelpad = -5)
-    plt.savefig(save_info_1)
-    plt.clf()
-
-#creating plots for every nth y value
-every_x(15)
-every_x(5)
-every_x(20)
-
-#creating plots of real and imaginary frequencies
-for j in range(0,len(kx_global)):      
-    for k in range(0,len(omega[0])):
-        plt.scatter(kx_global[j], omega[j][k])
-        #plt.ylim(-2e-3,2e-3)
-    ax.yaxis.labelpad = -5
-    plt.title('kx vs Frequency')
-    plt.xlabel('Wave Number (kx)')
-    plt.ylabel('Frequency',labelpad = -5)
-plt.savefig('imag_freq.png')
-plt.clf()
 
 
-for j in range(0,len(kx_global)):      
-    for k in range(0,len(gamma[0])):
-        plt.scatter(kx_global[j], gamma[j][k])
-        #plt.ylim(-2e-3,2e-3)
-    ax.yaxis.labelpad = -5
-    plt.title('kx vs Frequency')
-    plt.xlabel('Wave Number (kx)')
-    plt.ylabel('Frequency',labelpad=-5)
-plt.savefig('real_freq.png')
-plt.clf()
-
-plt.scatter(kx_global, max_imag)
-#plt.ylim(1e-4,1.2e-4)
-plt.title('kx vs Frequency')
-plt.xlabel('Wave Number (kx)')
-plt.ylabel('Frequency')
-plt.savefig('max_imag.png')
 
 
-'''
