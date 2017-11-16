@@ -57,6 +57,7 @@ def growth_rate(Lx, Ly, zeta, D, a, b, g, Co, beta, kx, i):
     bp.parameters['Co'] = Co
     bp.parameters['kx'] = i*2*np.pi/Lx
     bp.parameters['i'] = i
+    bp.parameters['T'] = np.sqrt((2*D)/g)
     bp.substitutions['theta'] = "pi*y/Ly"
     bp.substitutions['Y(y)'] = "Ly/pi *((1+zeta)/zeta * arctan(zeta*sin(theta)/(1+zeta*cos(theta))))"
     bp.substitutions['Z(y)'] = "(1-zeta)**2/2 * (1-cos(theta))/(1+zeta**2+2*zeta*cos(theta))"
@@ -66,9 +67,9 @@ def growth_rate(Lx, Ly, zeta, D, a, b, g, Co, beta, kx, i):
     
 
     #equations
-    bp.add_equation("sigma*h + D*(dx(u)+dy(v)) + b*h = 0")
-    bp.add_equation("sigma*u + a*u + g*dx(h) - f*v = 0")
-    bp.add_equation("sigma*v + a*v + g*dy(h) + f*u = 0")
+    bp.add_equation("sigma*h+dx(u)+dy(v) + b*h*T = 0")
+    bp.add_equation("(1/T)*sigma*u + a*u + (T/(D*g))*dx(h) - f*v = 0")
+    bp.add_equation("(1/T)*sigma*v + a*v + (T/(D*g))*dy(h) - f*u = 0")
 
     #init cond
     bp.add_bc("left(v) = 0")
