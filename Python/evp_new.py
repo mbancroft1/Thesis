@@ -12,6 +12,7 @@ from dedalus import public as de
 
 from dedalus.extras import flow_tools
 
+
 import logging
 logger = logging.getLogger(__name__)
 ax = plt.gca()
