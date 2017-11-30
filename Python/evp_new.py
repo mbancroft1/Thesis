@@ -18,18 +18,18 @@ logger = logging.getLogger(__name__)
 ax = plt.gca()
 #CW = MPI.COMM_WORLD
 
-Lx = 1
-Ly = .5
+Lx = 1020408.163
+Ly = 510204.0816
 nx = 128
 ny = 128
 zeta = 0.9 # control for sponge layer
-D = 9.8e-7 # Depth m
-g  = 9.8e-8 #reduced gravity?
-T = np.sqrt((2*D)/g)
+D = 1 # Depth m
+g  = 9.8/(98) #reduced gravity?
+T = np.sqrt((2*98)/g)
 a = 1.157e-7*T # time const. 1/s
 b = 1.157e-7*T # time const. 1/s
-Co = 1.4*(10e7/T) #speed m/s
-beta = 2.28e-11/(10e7*T) # beta plane const. 1/m*s
+Co = 1.4*(98/T) #speed m/s
+beta = 2.28e-11/(98*T) # beta plane const. 1/m*s
 kx = 2*np.pi/Lx
 g = g*T**2
 
