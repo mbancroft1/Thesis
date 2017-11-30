@@ -18,8 +18,8 @@ logger = logging.getLogger(__name__)
 ax = plt.gca()
 #CW = MPI.COMM_WORLD
 
-Lx = 10000000
-Ly = 5000000
+Lx = 1
+Ly = .5
 nx = 128
 ny = 128
 zeta = 0.9 # control for sponge layer
