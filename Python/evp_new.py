@@ -23,16 +23,17 @@ Ly = .5
 nx = 128
 ny = 128
 zeta = 0.9 # control for sponge layer
-D = 98. # Depth m
-a = 1.157e-7 # time const. 1/s
-b = 1.157e-7 # time const. 1/s
-g  = .02 #reduced gravity?
-Co = 1.4 #speed m/s
-beta = 2.28e-11 # beta plane const. 1/m*s
+D = 9.8e-7 # Depth m
+g  = 9.8e-8 #reduced gravity?
+T = np.sqrt((2*D)/g)
+a = 1.157e-7*T # time const. 1/s
+b = 1.157e-7*T # time const. 1/s
+Co = 1.4*(10e7/T) #speed m/s
+beta = 2.28e-11/(10e7*T) # beta plane const. 1/m*s
 kx = 2*np.pi/Lx
-#y_basis = de.Chebyshev('y', 256, interval = (-Ly,Ly), dealias = 3/2)
+g = g*T**2
 
-def growth_rate(Lx, Ly, zeta, D, a, b, g, Co, beta, kx, i):
+def growth_rate(Lx, Ly, zeta, D, a, b, g, Co, T,  beta, kx, i):
 
     # Create Basis and domain
 
@@ -89,7 +90,7 @@ def growth_rate(Lx, Ly, zeta, D, a, b, g, Co, beta, kx, i):
 kx_global = np.linspace(1, 1, 1)
 
 #Running function over wavenumbers
-freq = np.array([growth_rate(Lx, Ly, zeta, D, a, b, g, Co, beta, kx, i) for i in kx_global])
+freq = np.array([growth_rate(Lx, Ly, zeta, D, a, b, g, Co, T, beta, kx, i) for i in kx_global])
 '''
 # largest finite imaginary part
 ev = freq[0].eigenvalues
@@ -142,7 +143,7 @@ plot_eval_sort(freq)
 
 
 
-evp = growth_rate(Lx, Ly, zeta, D, a, b, g, Co, beta, kx, 1)
+evp = growth_rate(Lx, Ly, zeta, D, a, b, g, Co, T, beta, kx, 1)
 
 # Filter infinite/nan eigenmodes
 finite = np.isfinite(evp.eigenvalues)
