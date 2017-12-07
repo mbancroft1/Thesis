@@ -18,22 +18,22 @@ logger = logging.getLogger(__name__)
 ax = plt.gca()
 #CW = MPI.COMM_WORLD
 
-Lx = 1
-Ly = .5
+Lx = 1020408.163
+Ly = 510204.0816
 nx = 128
 ny = 128
 zeta = 0.9 # control for sponge layer
-D = 9.8e-7 # Depth m
+D = 1 # Depth m
 T = np.sqrt((2*98)/9.8)
-g  = (9.8*T**2)/(10e7) #reduced gravity?
-a = 1.157e-7*T # time const. 1/s
-b = 1.157e-7*T # time const. 1/s
-Co = 1.4*(10e7/T) #speed m/s
-beta = 2.28e-11/(10e7*T) # beta plane const. 1/m*s
+#g  = (9.8*T**2)/(98) #reduced gravity?
+a = 1.157e-7/T # time const. 1/s
+b = 1.157e-7/T # time const. 1/s
+Co = 1.4*(98/T) #speed m/s
+beta = 2.28e-11/(98*T) # beta plane const. 1/m*s
 kx = 2*np.pi/Lx
-#g = g*T**2
 
-def growth_rate(Lx, Ly, zeta, D, a, b, g, Co, T,  beta, kx, i):
+
+def growth_rate(Lx, Ly, zeta, D, a, b, Co, T,  beta, kx, i):
 
     # Create Basis and domain
 
@@ -54,11 +54,11 @@ def growth_rate(Lx, Ly, zeta, D, a, b, g, Co, T,  beta, kx, i):
     bp.parameters['a'] = a
     bp.parameters['b'] = b
     bp.parameters['D'] = D
-    bp.parameters['g'] = g
+    #bp.parameters['g'] = g
     bp.parameters['Co'] = Co
     bp.parameters['kx'] = i*2*np.pi/Lx
     bp.parameters['i'] = i
-    bp.parameters['T'] = np.sqrt((2*D)/g)
+    bp.parameters['T'] = np.sqrt((2*98)/9.8)
     bp.substitutions['theta'] = "pi*y/Ly"
     bp.substitutions['Y(y)'] = "Ly/pi *((1+zeta)/zeta * arctan(zeta*sin(theta)/(1+zeta*cos(theta))))"
     bp.substitutions['Z(y)'] = "(1-zeta)**2/2 * (1-cos(theta))/(1+zeta**2+2*zeta*cos(theta))"
@@ -68,9 +68,9 @@ def growth_rate(Lx, Ly, zeta, D, a, b, g, Co, T,  beta, kx, i):
     
 
     #equations
-    bp.add_equation("sigma*h+dx(u)+dy(v) + b*h*T = 0")
-    bp.add_equation("(1/T)*sigma*u + a*u + (T/(D*g))*dx(h) - f*v = 0")
-    bp.add_equation("(1/T)*sigma*v + a*v + (T/(D*g))*dy(h) - f*u = 0")
+    bp.add_equation("sigma*h+dx(u)+dy(v) + b*h = 0")
+    bp.add_equation("sigma*u + a*u + 2*dx(h) - f*v = 0")
+    bp.add_equation("sigma*v + a*v + 2*dy(h) - f*u = 0")
 
     #init cond
     bp.add_bc("left(v) = 0")
@@ -90,7 +90,7 @@ def growth_rate(Lx, Ly, zeta, D, a, b, g, Co, T,  beta, kx, i):
 kx_global = np.linspace(1, 1, 1)
 
 #Running function over wavenumbers
-freq = np.array([growth_rate(Lx, Ly, zeta, D, a, b, g, Co, T, beta, kx, i) for i in kx_global])
+freq = np.array([growth_rate(Lx, Ly, zeta, D, a, b, Co, T, beta, kx, i) for i in kx_global])
 '''
 # largest finite imaginary part
 ev = freq[0].eigenvalues
@@ -143,7 +143,7 @@ plot_eval_sort(freq)
 
 
 
-evp = growth_rate(Lx, Ly, zeta, D, a, b, g, Co, T, beta, kx, 1)
+evp = growth_rate(Lx, Ly, zeta, D, a, b, Co, T, beta, kx, 1)
 
 # Filter infinite/nan eigenmodes
 finite = np.isfinite(evp.eigenvalues)
@@ -158,7 +158,7 @@ evp.eigenvectors = evp.eigenvectors[:, order]
 #testing set_state
 yy = evp.domain.grid(0)
 plt.figure()
-for i in range(2):
+for i in range(3):
     evp.set_state(i)
     plt.plot(yy, evp.state['u']['g'].real, label = "mode {}".format(i))
              
