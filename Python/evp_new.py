@@ -9,35 +9,33 @@ import time
 import matplotlib.pyplot as plt
 from docopt import docopt
 from dedalus import public as de
-
 from dedalus.extras import flow_tools
-
-
 import logging
 logger = logging.getLogger(__name__)
 ax = plt.gca()
 #CW = MPI.COMM_WORLD
-
+# Unitless Dimensions of Beta Plane
 Lx = 1020408.163
 Ly = 510204.0816
+# Resolution
 nx = 128
 ny = 128
 zeta = 0.9 # control for sponge layer
-D = 1 # Depth m
+# Constants all Unitless
+D = 1 # Depth 
 T = np.sqrt((2*98)/9.8)
-#g  = (9.8*T**2)/(98) #reduced gravity?
-a = 1.157e-7/T # time const. 1/s
-b = 1.157e-7/T # time const. 1/s
-Co = 1.4*(98/T) #speed m/s
-beta = 2.28e-11/(98*T) # beta plane const. 1/m*s
+#g  = (9.8*T**2)/(98) 
+a = 1.157e-7/T # time const. 
+b = 1.157e-7/T # time const.
+Co = 1.4*(98/T) #speed
+beta = 2.28e-11/(98*T) # beta plane const.
 kx = 2*np.pi/Lx
 
+# Function for building Solver with system of equations
 
 def growth_rate(Lx, Ly, zeta, D, a, b, Co, T,  beta, kx, i):
 
     # Create Basis and domain
-
-    #x_basis = de.Fourier('x', 128, interval = (0,Lx), dealias = 3/2)
 
     y_basis = de.Chebyshev('y', 128, interval = (-Ly,Ly), dealias = 3/2)
 
@@ -54,7 +52,6 @@ def growth_rate(Lx, Ly, zeta, D, a, b, Co, T,  beta, kx, i):
     bp.parameters['a'] = a
     bp.parameters['b'] = b
     bp.parameters['D'] = D
-    #bp.parameters['g'] = g
     bp.parameters['Co'] = Co
     bp.parameters['kx'] = i*2*np.pi/Lx
     bp.parameters['i'] = i
@@ -75,7 +72,7 @@ def growth_rate(Lx, Ly, zeta, D, a, b, Co, T,  beta, kx, i):
     #init cond
     bp.add_bc("left(v) = 0")
     bp.add_bc("right(v) = 0")
-    # solver
+    # Building solver
 
     EVP = bp.build_solver()
     pencils = EVP.pencils
@@ -99,15 +96,15 @@ gamma = ev.real
 omega = ev.imag
 '''
 
-#plotting eigenvalues unsorted
+#Function to plot e-val unsorted 
 def plot_eval(freq):
     for k in range(len(freq)):
         ev = freq[k].eigenvalues
         ev = ev[np.isfinite(ev)]
+        # sorting real and imaginary parts of e-vals
         gamma = ev.real
         omega = ev.imag
-        #for j in range(0,len(omega)):
-        #logger.info(ev[j])
+        #plotting Imaginary parts 
         plt.plot(omega)
         plt.ylim(-2e-3,2e-3)
         ax.yaxis.labelpad = -5
@@ -116,7 +113,7 @@ def plot_eval(freq):
         plt.title("Eigenvalues")
     plt.savefig('evalues.png')
     plt.clf()
-
+# end plot_eval
 plot_eval(freq)
 
 
