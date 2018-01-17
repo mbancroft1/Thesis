@@ -1,1 +1,56 @@
+1/16/18:
+Read Beta-Plane Magnetohydrodynamic Turbulence in the Solar Tachocline by Steven Tobias, Patrick Diamond, and Divid Hughes
+Notes:
+Tachocline is thin layer of strong radial shear at the base of solar convection zone it consists of 2 layers upper and lower 
+it is a transition region. Upper layer is coupled strongly with convection zone above and has strong toroidal mag field generated
+by solar dynamo. Not much known about lower layer except it is very stably stratified.
+CENTRAL QUESTION: whether stably stratified turbulence does indeed act as a viscosity (friction) in redistributing angular
+momentum on long timescales
+
+The degree of stratification in a shear flow is often measured by the
+Richardson number Ri; in the lower tachocline , and 3 Ri ≈ 10
+
+The Rossby number Ro measures the ratio of inertial to Coriolis terms; in the tacho-
+cline, Ro ≈ 0.1–1 uncertainty due to difficulties in estimating typical flow speeds.
+
+Ekman number, a measure of the relative importance of viscous to
+Coriolis terms, is exceptionally small 11 E ≈ 10
+
+magnetic Reynolds number is given by Rm = RoE^-1 Pm
+Pm is the magnetic Prandtl number. For the tachocline, Rm ≈ 10 –10
+
+The governing equations of our model are the forced momentum equation for an incompressible fluid with unit density
+together with the magnetic induction equation
+
+In order to include the effects of rotation in such a model, it is
+necessary to employ the b-plane approximation, where only the
+vertical component of rotation is retained
+
+Equations (4) and (5) are solved using standard pseu-
+dospectral techniques on a parallel computer. (Why psuedospectral? are we using spectral methods?)
+
+sampled wavenumbers 14-20
+
+do not include any sink term to remove energy at large scales.
+
+what does beta value indicate again?
+
+We are trying to replicate in 3-d?
+
+The magnetic field is wrapped up and amplified into small-scale fields by the driven
+turbulence. This small-scale field exerts a Maxwell stress on
+the fluid that opposes the sense of the correlations that drive
+the mean flow. If this Maxwell stress is large enough, then the
+Reynolds stresses can be canceled (on average) and the mech-
+anism for driving the mean zonal flows switched off.
+
+Maxwell stress definition: a second order tensor used in classical electromagnetism to represent the interaction bewtween
+electromagnetic forces and mechanical momentum.
+
+
+
+1/17/18: Re-introducing myself to running scripts on Leavitt
+
+How do I proxy to Leavitt again?
+
 
